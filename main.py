@@ -17,6 +17,7 @@ if __name__ == '__main__':
 	time_sum = 0
 	q1 = Queue()
 	add_people(q1, 1000)
-	print(q1.get_len())
+	
+	hehe
 
 	
