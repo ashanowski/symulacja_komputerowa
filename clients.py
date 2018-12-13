@@ -14,3 +14,6 @@ class Client:
 				%d sekund na wypisanie."""
 				% (self.register_time, self.selection_time, 
 				   self.signoff_time))
+
+	def get_reg_time(self):
+		return self.register_time

@@ -12,7 +12,9 @@ class Queue:
 
 	def dequeue(self):
 		""" Deletes the first object in the queue """
+		obj = self._queue[-1]
 		self._queue = np.delete(self._queue, -1)
+		return obj
 
 	def get_len(self):
 		"""Returns length of queue """
@@ -28,3 +30,6 @@ class Queue:
 			return self._queue[pos]
 		except IndexError:
 			print("There's no such object position")
+
+	def isempty(self):
+		 if np.shape(self._queue)[0] == 0: return True
