@@ -65,25 +65,38 @@ def manage_time(time):
 		return("%d:%d:%d"
 			% (hours, minutes, seconds))
 
-def registration_test(people_num, max_time):
-	""" Perform a test for registration procedure
+def procedure_test(people_num, end_time, test='register_time'):
+	""" Perform a test for register, selection
+		or signoff procedure.
+		If register time test is selected,
+		combine it with selection time test, as
+		client will always take a game after registering.
 		
 		Parameters
 		----------
 			people_num : int
 				how many clients in a queue
-			max_time : int 
-				maximum time for registration in seconds
+			end_time : int 
+				maximum time for registration in seconds from 0
+			test : str
+				'register_time' for registration test
+				'selection_time' for selection test
+				'signoff_time' for signoff_time
 
 		Returns
 		-------
-			Array [time_sum, queue_pos]:
+			Array [time_sum, queue_pos, completed]
 				time_sum : int
 					how many seconds were used for registration
 				queue_pos : int
 					how many people were served
+				completed : bool
+					True if queue was emptied, false if time has
+					passed with clients still in queue
 	"""
-	start_time, end_time = 0, max_time
+	if test not in ['register_time', 'selection_time', 'signoff_time']:
+		print("Type of test (%s) not appropriate!" % (test))
+		return
 
 	q1 = Queue()
 	add_people(q1, people_num)
@@ -93,38 +106,72 @@ def registration_test(people_num, max_time):
 	while time_sum < end_time:
 		# break if queue is empty
 		if q1.isempty():
-			print("The queue is empty!")
+			# debugging
+			#print("The queue is empty!")
+			completed = True
 			break
-		# take time var for one client
-		reg_time = q1.get_obj(q1.get_len()-1).register_time
+
+		# take time vasymulacr for one client
+
+		test_time = getattr(q1.get_obj(q1.get_len()-1), test)
+
+		# if register_time is chosen, add selection time
+		if test == 'register_time':
+			test_time += getattr(q1.get_obj(q1.get_len()-1), 'selection_time')
+
 		# break if time passed
-		if time_sum + reg_time >= end_time:
-			print("We have no time left!")
+		if time_sum + test_time >= end_time:
+			# debugging
+			#print("We have no time left!")
+			completed = False
 			break
+
 		# add the reg_time, dequeue a client and change pos
-		time_sum += reg_time
+		time_sum += test_time
 		q1.dequeue()
 		queue_pos += 1
 
-	print("We've managed to handle %d clients within %s!"\
-				% (queue_pos+1, manage_time(time_sum)))
+	# debugging
+	#print("We've managed to handle %d clients within %s!"\
+	#			% (queue_pos+1, manage_time(time_sum)))
 
-	return [time_sum, queue_pos]
+	return [time_sum, queue_pos, completed]
+
+def save_to_csv(data, filename):
+	""" Save given data to a csv file
+
+		Parameters
+		----------
+			data : list
+				data to be saved and splitted by commas
+			filename : str
+				filename of the file to save the data to
+
+		Returns
+		-------
+			file : file
+				saves data to the output csv file
+		"""
+	# if given filename doesn't end with .csv:
+	if filename[-4:] is not '.csv':
+		filename = "%s.csv" % (filename)
+
+	with open(filename, 'w') as file:
+		for line in data:
+			file.write("%d,%d,%s\n" % (line[0], line[1], line[2]))
 
 def main():
-	registration_test(100, 3600)
-	registration_test(50, 3600)
+	print(procedure_test(50, 3600))
+	print(procedure_test(50, 3600, 'selection_time'))
+	print(procedure_test(50, 3600, 'signoff_time'))
 
 if __name__ == '__main__':
 	main()
-	
 
 	# TODO:
-	# ---> registration_test:
-	# 	-> flagi - czy obsłużono wszystkich czy nie
-	#	-> export danych do pliku (najlepiej .csv)
 	# ---> jak obsłużyć inne typy kolejek
 	# ---> rozpoznawanie klientów, przydzielanie typów
 	#	   (wchodzący, zmieniający grę, wychodzący)
 	#	   po zarejestrowaniu zmienia flagę na inną,
 	#	   ale musi zostać w pamięci
+	#	   KLIENCI GRAJĄCY MOGĄ BYĆ PRZENOSZENI DO NP.ARRAY
