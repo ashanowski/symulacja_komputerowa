@@ -3,11 +3,14 @@ from clients import Client
 import numpy as np
 import progressbar as pb
 
-def create_queues(quantity):
+def create_queues(queue_type, quantity):
 	""" Create a list of list of Queues with given quantity
 
 		Parameters
 		----------
+			queue_type : int [1, 2, 3]
+				type of the queue
+
 			quantity : int
 				number of queues to return
 
@@ -16,7 +19,7 @@ def create_queues(quantity):
 			list
 				a list of Queues
 	"""
-	return [Queue() for _ in range(quantity)]
+	return [Queue(queue_type) for _ in range(quantity)]
 
 def add_people(queue, quantity):
 	""" Enqueue given quantity of clients to a queue
@@ -98,7 +101,7 @@ def procedure_test(people_num, end_time, test='register_time'):
 		print("Type of test (%s) not appropriate!" % (test))
 		return
 
-	q1 = Queue()
+	q1 = Queue(1)
 	add_people(q1, people_num)
 	time_sum = 0
 	queue_pos = 0
@@ -111,7 +114,7 @@ def procedure_test(people_num, end_time, test='register_time'):
 			completed = True
 			break
 
-		# take time vasymulacr for one client
+		# get the value of time needed for one client
 
 		test_time = getattr(q1.get_obj(q1.get_len()-1), test)
 
@@ -161,9 +164,7 @@ def save_to_csv(data, filename):
 			file.write("%d,%d,%s\n" % (line[0], line[1], line[2]))
 
 def main():
-	print(procedure_test(50, 3600))
 	print(procedure_test(50, 3600, 'selection_time'))
-	print(procedure_test(50, 3600, 'signoff_time'))
 
 if __name__ == '__main__':
 	main()

@@ -14,6 +14,10 @@ class Client:
 
 	Attributes
 	----------
+		client_type : int [1, 2, 3]
+			1 - first-commer
+			2 - will change a game
+			3 - is going to leave
 		register_time : int
 			Time needed by client to be registered
 		selection_time : int
@@ -28,7 +32,8 @@ class Client:
 
 	"""
 
-	def __init__(self):
+	def __init__(self, type_=1):
+		self.client_type = type_
 		self.register_time = np.random.randint(45, 90)
 		self.selection_time = np.random.randint(30, 300)
 		self.signoff_time = np.random.randint(10, 60)
@@ -42,3 +47,6 @@ class Client:
 				%d sekund na wypisanie."""
 				% (self.register_time, self.selection_time, 
 				   self.signoff_time))
+
+	def set_type(self, type_):
+		self.client_type = type_

@@ -17,6 +17,11 @@ class Queue:
 		_queue : numpy.array
 			an array that stores objects in queue based
 			data structure (First In, First Out)
+		queue_type : int [1, 2, 3, 4]
+			1 - for registering clients
+			2 - for clients that want to change the game
+			3 - for clients that want to quit
+			4 - for all type of clients
 
 		Methods
 		-------
@@ -34,18 +39,25 @@ class Queue:
 			Checks if queue is empty
 	"""
 
-	def __init__(self):
+	def __init__(self, queue_type=1):
+		self.queue_type = queue_type
 		self._queue = np.array([], dtype=object)
 
 	def enqueue(self, obj):
-		""" Adds a new object to the end of queue 
+		""" Adds a new client object to the end of queue 
+			if the client type attribute of given object
+			matches the type of queue
 
 			Parameters
 			----------
 				obj : object
 					object to be added
 		"""
-		self._queue = np.insert(self._queue, 0, obj)
+		if getattr(obj, 'client_type') == self.queue_type \
+					or self.queue_type == 4:
+			self._queue = np.insert(self._queue, 0, obj)
+		else:
+			print("Client type does not match queue type!")
 
 	def dequeue(self):
 		""" Deletes the first object in the queue 
