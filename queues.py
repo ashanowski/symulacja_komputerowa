@@ -22,7 +22,7 @@ class Queue:
 			2 - for clients that want to change the game
 			3 - for clients that want to quit
 			4 - for all type of clients
-
+k
 		Methods
 		-------
 		enqueue(obj)

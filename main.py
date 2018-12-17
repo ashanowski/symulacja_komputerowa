@@ -1,7 +1,7 @@
 from queues import Queue
 from clients import Client
 import numpy as np
-import progressbar as pb
+from utilities import *
 
 def create_queues(queue_type, quantity):
 	""" Create a list of list of Queues with given quantity
@@ -37,36 +37,6 @@ def add_people(queue, quantity):
 				a list of consequetive enqueues to given queue
 	"""
 	return [queue.enqueue(Client()) for _ in range(quantity)]
-
-def manage_time(time):
-	""" Shorten time frame to minutes or hours
-
-		Parameters
-		----------
-			time : int
-				time in seconds
-
-		Returns
-		-------
-			string
-				time in HH:MM:SS format
-	"""
-
-	if time < 60:
-		return("%d:%d:%d" % (0, 0, time))
-
-	elif time >= 60 and time < 3600:
-		minutes = int(time/60)
-		seconds = time - 60*minutes
-		return("%d:%d:%d" 
-			% (0, minutes, seconds))
-
-	elif time >= 3600:
-		hours = int(time/3600)
-		minutes = int( (time - hours*3600) / 60)
-		seconds = int (time - hours*3600 - minutes*60)
-		return("%d:%d:%d"
-			% (hours, minutes, seconds))
 
 def procedure_test(people_num, end_time, test='register_time'):
 	""" Perform a test for register, selection
@@ -140,39 +110,60 @@ def procedure_test(people_num, end_time, test='register_time'):
 
 	return [time_sum, queue_pos, completed]
 
-def save_to_csv(data, filename):
-	""" Save given data to a csv file
-
-		Parameters
-		----------
-			data : list
-				data to be saved and splitted by commas
-			filename : str
-				filename of the file to save the data to
+def simulate_test():
+	""" Simulate behavior of one client
 
 		Returns
 		-------
-			file : file
-				saves data to the output csv file
-		"""
-	# if given filename doesn't end with .csv:
-	if filename[-4:] is not '.csv':
-		filename = "%s.csv" % (filename)
+			current_time : int
+				How many se
 
-	with open(filename, 'w') as file:
-		for line in data:
-			file.write("%d,%d,%s\n" % (line[0], line[1], line[2]))
+	"""
+	#Creating queues, a client, and enqueueing the client
+	print('Utworzono kolejki!')
+	q1 = Queue(queue_type=1)
+	q2 = Queue(queue_type=2)
+	q3 = Queue(queue_type=3)
+	print('Utworzono klienta!')
+	c1 = Client(1)
+	print('Dołączam do kolejki')
+	q1.enqueue(c1)	
+	# max time equals 9 hours
+	max_time = 9 * 3600
+
+	# time spent on registering
+	current_time = c1.register_time
+
+	while current_time < max_time:
+		if current_time + c1.selection_time + 1800 >= max_time:
+			print("Nie zdążę już wybrać innej gry, wychodzę!")
+			c1.set_type(3)
+			# find best queue
+			q3.enqueue(3)
+			# wait for your turn
+			current_time += c1.signoff_time
+			q3.dequeue()
+			break
+		selection_time = c1.selection_time
+		print('Wybrałem grę w {}!'.format(manage_time(selection_time)))
+		game_time = int(np.random.normal(1800, 900))
+		print("Grałem w grę przez {}!".format(manage_time(game_time)))
+		current_time += selection_time + game_time
+	print("Kończę zabawę w czasie {}".format(manage_time(current_time)))
+	return current_time
 
 def main():
-	print(procedure_test(50, 3600, 'selection_time'))
+	simulate_test()
+
 
 if __name__ == '__main__':
 	main()
 
 	# TODO:
 	# ---> jak obsłużyć inne typy kolejek
-	# ---> rozpoznawanie klientów, przydzielanie typów
-	#	   (wchodzący, zmieniający grę, wychodzący)
-	#	   po zarejestrowaniu zmienia flagę na inną,
+	# ---> po zarejestrowaniu zmienia flagę na inną,
 	#	   ale musi zostać w pamięci
 	#	   KLIENCI GRAJĄCY MOGĄ BYĆ PRZENOSZENI DO NP.ARRAY
+	# ---> potrzebna funkcja do wyszukiwania najlepszej
+	#	   możliwej kolejki, czyli takiej w której jest
+	#	   najmniej osób
