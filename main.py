@@ -135,21 +135,21 @@ def simulate_test():
 	current_time = c1.register_time
 
 	while current_time < max_time:
-		if current_time + c1.selection_time + 1800 >= max_time:
-			print("Nie zdążę już wybrać innej gry, wychodzę!")
+		if current_time + c1.selection_time + 1800 > max_time:
+			print("I won't manage to play another game, quitting...")
 			c1.set_type(3)
 			# find best queue
-			q3.enqueue(3)
+			q3.enqueue(c1)
 			# wait for your turn
 			current_time += c1.signoff_time
 			q3.dequeue()
 			break
 		selection_time = c1.selection_time
-		print('Wybrałem grę w {}!'.format(manage_time(selection_time)))
+		print("I've chosen a game in {}!".format(manage_time(selection_time)))
 		game_time = int(np.random.normal(1800, 900))
-		print("Grałem w grę przez {}!".format(manage_time(game_time)))
+		print("I played for {}!".format(manage_time(game_time)))
 		current_time += selection_time + game_time
-	print("Kończę zabawę w czasie {}".format(manage_time(current_time)))
+	print("Ending within {}".format(manage_time(current_time)))
 	return current_time
 
 def main():
@@ -163,7 +163,10 @@ if __name__ == '__main__':
 	# ---> jak obsłużyć inne typy kolejek
 	# ---> po zarejestrowaniu zmienia flagę na inną,
 	#	   ale musi zostać w pamięci
-	#	   KLIENCI GRAJĄCY MOGĄ BYĆ PRZENOSZENI DO NP.ARRAY
+	#	   klienci grający w np.array? 
+	# ---> zasymulować uczestnictwo w czasie innym
+	# 	   niż 0 - 9*3600, a na przykład
+	# 	   od 1800 do 7500 lub na jakiś konkretny czas
 	# ---> potrzebna funkcja do wyszukiwania najlepszej
 	#	   możliwej kolejki, czyli takiej w której jest
 	#	   najmniej osób
